@@ -1,0 +1,42 @@
+GRAND BISTRO NAPOLEON - WEBSITE
+================================
+
+Inhoud
+------
+index.html        De volledige website (alle pagina's, lettertypes en logo zitten erin).
+                  Er zijn geen andere bestanden nodig om de site te laten werken.
+404.html          Pagina die getoond wordt als een adres niet bestaat. Upload ze naast
+                  index.html; de meeste hosts (en Netlify) gebruiken ze automatisch.
+afbeeldingen/     Het logo apart (SVG en PNG), voor drukwerk, sociale media, enz.
+
+Pagina's
+--------
+De site heeft vier pagina's in hetzelfde bestand:
+  .../#home  .../#verhaal  .../#menukaart  .../#contact
+Je kan deze links rechtstreeks delen.
+
+Hosten
+------
+Upload "index.html" naar de hoofdmap van je webhosting (vaak "public_html" of "www").
+Dat werkt bij elke gewone hostingprovider (Combell, one.com, Hostinger, Strato, ...).
+
+Gratis en snel uitproberen zonder hosting:
+  1. Ga naar https://app.netlify.com/drop
+  2. Sleep de map "napoleon-website" in het venster.
+  3. Je krijgt meteen een werkend webadres. Een eigen domeinnaam koppel je daarna
+     in de Netlify-instellingen.
+
+Lokaal bekijken: dubbelklik op index.html.
+
+Social Deal tonen of verbergen
+------------------------------
+Op de Home-pagina staat een rubriek "Social Deal" met een knop naar de deal.
+Is de deal niet meer geldig? Zoek in index.html naar  id="socialdeal"  en zet
+het woord  hidden  erachter om de rubriek te verbergen:
+    <section class="wrap deal" id="socialdeal" hidden>
+Haal  hidden  weer weg om ze opnieuw te tonen.
+
+Aanpassen
+---------
+Prijzen of teksten wijzigen kan met een gewone teksteditor (bv. Kladblok of
+VS Code): zoek de tekst op in index.html en pas hem aan. Laat de rest ongemoeid.
