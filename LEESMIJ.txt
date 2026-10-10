@@ -28,14 +28,6 @@ Gratis en snel uitproberen zonder hosting:
 
 Lokaal bekijken: dubbelklik op index.html.
 
-Social Deal tonen of verbergen
-------------------------------
-Op de Home-pagina staat een rubriek "Social Deal" met een knop naar de deal.
-Is de deal niet meer geldig? Zoek in index.html naar  id="socialdeal"  en zet
-het woord  hidden  erachter om de rubriek te verbergen:
-    <section class="wrap deal" id="socialdeal" hidden>
-Haal  hidden  weer weg om ze opnieuw te tonen.
-
 Aanpassen
 ---------
 Prijzen of teksten wijzigen kan met een gewone teksteditor (bv. Kladblok of
