@@ -57,6 +57,7 @@ em{font-family:var(--serif);font-style:italic}
 .nav a[aria-current="page"]::after{transform:scaleX(1)}
 @media (hover:hover) and (pointer:fine){.nav a:hover::after,.ul:hover::after{transform:scaleX(1);transform-origin:left}}
 .call{font-size:14px;font-weight:600;text-decoration:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lang{height:40px;min-width:40px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--white);color:var(--ink);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.08em}
 .burger{display:none;width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:var(--white);cursor:pointer;place-items:center}
 .burger svg{width:16px;height:16px}
 .burger path{transition:transform 220ms var(--ease-out),opacity 150ms ease;transform-box:fill-box;transform-origin:center}
@@ -235,6 +236,7 @@ footer a{text-decoration:none}
       <li><a href="#contact" data-nav="contact">Contact</a></li>
     </ul>
     <a class="call" href="tel:+3211730074">011 73 00 74</a>
+    <button class="lang" id="lang" type="button" lang="en" aria-label="Switch to English">EN</button>
     <button class="burger" id="burger" type="button" aria-controls="nav" aria-expanded="false" aria-label="Menu openen">
       <svg viewBox="0 0 16 16" fill="none" stroke="#161514" stroke-width="1.5" stroke-linecap="round"><path class="l1" d="M2 5h12"/><path class="l2" d="M2 11h12"/></svg>
     </button>
@@ -394,8 +396,10 @@ footer a{text-decoration:none}
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   var pages=[].slice.call(document.querySelectorAll('.page')), names=pages.map(function(p){return p.dataset.page});
   var burger=document.getElementById('burger'), nav=document.getElementById('nav');
-  function closeNav(){nav.classList.remove('open');burger.setAttribute('aria-expanded','false');burger.setAttribute('aria-label','Menu openen');}
-  burger.addEventListener('click',function(){var o=nav.classList.toggle('open');burger.setAttribute('aria-expanded',o);burger.setAttribute('aria-label',o?'Menu sluiten':'Menu openen');});
+  var lang='nl';
+  var UI={nl:{mo:'Menu openen',mc:'Menu sluiten',copy:'Kopieer nummer',copied:'Gekopieerd',sel:'Geselecteerd',open:'Nu open · tot 20:30',closed:'Gesloten · ',today:'vandaag',tomorrow:'morgen',tue:'dinsdag',from:' vanaf 10:00',sw:'Wissel naar Engels',swl:'EN'},en:{mo:'Open menu',mc:'Close menu',copy:'Copy number',copied:'Copied',sel:'Selected',open:'Open now · until 20:30',closed:'Closed · ',today:'today',tomorrow:'tomorrow',tue:'Tuesday',from:' from 10:00',sw:'Schakel naar Nederlands',swl:'NL'}};
+  function closeNav(){nav.classList.remove('open');burger.setAttribute('aria-expanded','false');burger.setAttribute('aria-label',UI[lang].mo);}
+  burger.addEventListener('click',function(){var o=nav.classList.toggle('open');burger.setAttribute('aria-expanded',o);burger.setAttribute('aria-label',o?UI[lang].mc:UI[lang].mo);});
 
   function show(name,focus){
     if(names.indexOf(name)<0) name='home';
@@ -429,6 +433,7 @@ footer a{text-decoration:none}
   show(location.hash.slice(1),false); watch();
 
   // open / closed in Belgian time
+  var renderStatus=function(){};
   try{
     var parts=new Intl.DateTimeFormat('nl-BE',{timeZone:'Europe/Brussels',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date());
     var get=function(k){var p=parts.find(function(x){return x.type===k});return p?p.value:''};
@@ -436,17 +441,47 @@ footer a{text-decoration:none}
     var mins=parseInt(get('hour'),10)*60+parseInt(get('minute'),10), open=wd!==0&&mins>=600&&mins<1230;
     if(wd>=0){var row=document.querySelector('#hours li[data-day="'+wd+'"]');if(row)row.classList.add('today');}
     var hs=document.getElementById('hero-status'), st=document.getElementById('status');
-    if(open){hs.textContent='Nu open · tot 20:30';st.querySelector('span').textContent='Nu open · tot 20:30';}
-    else{var w=wd===0?'morgen vanaf 10:00':(mins<600?'vandaag':(wd===6?'dinsdag':'morgen'))+' vanaf 10:00';hs.textContent='Gesloten · '+w;st.querySelector('span').textContent='Gesloten · '+w;
-      [document.getElementById('hero-status-wrap'),st].forEach(function(el){el.classList.remove('live');el.classList.add('closed')});}
+    renderStatus=function(){var u=UI[lang],t;
+      if(open)t=u.open;else t=u.closed+(wd===0?u.tomorrow:(mins<600?u.today:(wd===6?u.tue:u.tomorrow)))+u.from;
+      hs.textContent=t;st.querySelector('span').textContent=t;};
+    if(!open)[document.getElementById('hero-status-wrap'),st].forEach(function(el){el.classList.remove('live');el.classList.add('closed')});
+    renderStatus();
   }catch(e){}
 
   var c=document.getElementById('copyphone');
   c.addEventListener('click',function(){
-    var done=function(){c.textContent='Gekopieerd';setTimeout(function(){c.textContent='Kopieer nummer'},1800)};
-    var sel=function(){var r=document.createRange();r.selectNodeContents(document.getElementById('phone'));var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent='Geselecteerd';};
+    var done=function(){c.textContent=UI[lang].copied;setTimeout(function(){c.textContent=UI[lang].copy},1800)};
+    var sel=function(){var r=document.createRange();r.selectNodeContents(document.getElementById('phone'));var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent=UI[lang].sel;};
     try{navigator.clipboard.writeText('011 73 00 74').then(done,sel);}catch(e){sel();}
   });
+
+  // language switch (NL <-> EN)
+  var EN={"Ons verhaal": "Our story", "Menukaart": "Menu", "Bistro op": "Bistro on", "het plein.": "the square.", "Al meer dan zestien jaar de vaste waarde op het Bernard Kempplein in Hamont. Klassiek Belgisch, met wisselende specialiteiten van de chef.": "For more than sixteen years a fixture on the Bernard Kempplein in Hamont. Classic Belgian, with changing specialties from the chef.", "Bekijk de menukaart": "View the menu", "Bel nu": "Call now", "Adres & uren": "Address & hours", "Di – zo, 10:00 – 20:30": "Tue – Sun, 10:00 – 20:30", "Tot 16:00": "Until 16:00", "Adres": "Address", "Uit de kaart": "From the menu", "Klassiekers van": "Classics from", "het huis.": "the house.", "Een greep uit de kaart. Van een stevige lunch tot een volwaardig diner, de hele dag door.": "A selection from the menu. From a hearty lunch to a full dinner, all day long.", "Volledige menukaart": "Full menu", "Stoofvlees met Achelse trappist": "Beef stew with Achel trappist beer", "Met frietjes, kroketten of gratin": "With fries, croquettes or gratin", "Kipschnitzel met champignonroomsaus": "Chicken schnitzel with mushroom cream sauce", "Kleine uitsmijter, kroket met brood, salade en soep": "Small uitsmijter (fried eggs on bread), croquette with bread, salad and soup", "Tagliatelle scampi": "Tagliatelle with scampi", "In roomsaus of currysaus": "In cream sauce or curry sauce", "Terras · Bernard Kempplein": "Terrace · Bernard Kempplein", "Terras": "Terrace", "Zon op": "Sun on", "Bij goed weer zit je buiten op het Kempplein. Met een Achelse trappist, een pannenkoek met aardbeien of gewoon een koffie.": "In good weather you sit outside on the Kempplein. With an Achel trappist, a pancake with strawberries or simply a coffee.", "Een bistro voor": "A bistro for", "heel Hamont.": "all of Hamont.", "Sinds meer dan 16 jaar": "For more than 16 years", "Meer dan zestien jaar geleden openden we de deuren van Grand Bistro Napoleon op het Bernard Kempplein. Sindsdien schuiven Hamontenaren, fietsers, families en vrienden hier aan voor een lunch, een diner of een frisse pint op het terras.": "More than sixteen years ago we opened the doors of Grand Bistro Napoleon on the Bernard Kempplein. Since then, locals, cyclists, families and friends have been sitting down here for a lunch, a dinner or a fresh pint on the terrace.", "Onze keuken is klassiek Belgisch: stoofvlees met Achelse trappist, garnaalkroketten, een goede schnitzel of een croque zoals het hoort. Daarnaast zetten we graag wisselende specialiteiten op tafel.": "Our kitchen is classic Belgian: beef stew with Achel trappist, shrimp croquettes, a good schnitzel or a croque just the way it should be. We also like to put changing specialties on the table.", "De naam is keizerlijk. De sfeer is gewoon gezellig.": "The name is imperial. The atmosphere is simply cosy.", "Sinds": "Since", "16+ jaar": "16+ years", "Di – zo": "Tue – Sun", "Buiten": "Outside", "Van croque tot": "From croque to", "stoofvlees.": "beef stew.", "De lunchkaart serveren we tot 16:00. De dinerkaart kan je de hele dag bestellen.": "We serve the lunch menu until 16:00. The dinner menu can be ordered all day.", "Diner": "Dinner", "De hele dag": "All day", "Soepen": "Soups", "Maaltijdsalades": "Salad meals", "Broodjes": "Sandwiches", "Eiergerechten": "Egg dishes", "Pannenkoeken": "Pancakes", "Dagsoep": "Soup of the day", "Tomatenroomsoep": "Cream of tomato soup", "Franse uiensoep": "French onion soup", "Toast met kaas": "Cheese toast", "Basilicum, tomaat": "Basil, tomato", "Ham, kaas": "Ham, cheese", "Ananas, kaas, kip, pesto": "Pineapple, cheese, chicken, pesto", "Gerookte zalm en dille": "Smoked salmon and dill", "Tomaat, kaas, spek en champignons": "Tomato, cheese, bacon and mushrooms", "Supplement garnituur (slaatje) € 0,75": "Supplement side (small salad) € 0,75", "Vegetarisch": "Vegetarian", "Geitenkaas en spek": "Goat cheese and bacon", "Runderreepjes in teriyakisaus": "Beef strips in teriyaki sauce", "Gebakken scampi's in look": "Fried scampi in garlic", "Hollandse garnalen": "Dutch shrimp", "Gerookte Noorse zalm": "Smoked Norwegian salmon", "Caesar met kip": "Caesar with chicken", "Alle salades zijn inclusief brood": "All salads include bread", "Ham of kaas": "Ham or cheese", "Ham en kaas": "Ham and cheese", "Gezond": "Healthy", "Met ham, kaas en ei": "With ham, cheese and egg", "Gerookte zalm en rode ui": "Smoked salmon and red onion", "Mozzarella, basilicum, tomaat": "Mozzarella, basil, tomato", "Uit de oven": "From the oven", "Stokbroodje met 2 vleeskroketten": "Baguette roll with 2 meat croquettes", "Brie met honing en rucola": "Brie with honey and rocket", "Carpaccio met rucola en truffelmayo": "Carpaccio with rocket and truffle mayo", "Omelet": "Omelette", "Wrap kip": "Chicken wrap", "Met groente, kaas uit de oven": "With vegetables, oven-baked cheese", "Wrap koude zalm": "Cold salmon wrap", "Met kruidenkaas": "With herb cheese", "Uitsmijter ham en kaas": "Ham and cheese uitsmijter (fried eggs on bread)", "Uitsmijter spek": "Bacon uitsmijter (fried eggs on bread)", "Boerenomelet": "Farmer's omelette", "Wokgroentjes, champignons, spek, ui": "Wok vegetables, mushrooms, bacon, onion", "Kleine uitsmijter ham en kaas, 1 kroket met brood, salade en een kleine soep": "Small ham and cheese uitsmijter, 1 croquette with bread, salad and a small soup", "Champignons, ui, spek, kaas uit de oven": "Mushrooms, onion, bacon, oven-baked cheese", "Mozzarella, tomaat en basilicum": "Mozzarella, tomato and basil", "Madame, videe, bolognaise": "Madame, videe, bolognese", "Enkel": "Single", "Dubbel": "Double", "+ Slagroom": "+ Whipped cream", "+ IJs": "+ Ice cream", "+ Banaan": "+ Banana", "+ Chocoladesaus": "+ Chocolate sauce", "+ Spek": "+ Bacon", "+ Aardbeien": "+ Strawberries", "In het seizoen": "In season", "+ Vers fruit": "+ Fresh fruit", "Voorgerechten": "Starters", "Vleesgerechten": "Meat dishes", "Visgerechten": "Fish dishes", "Pasta's": "Pasta", "Kindermenu's": "Kids' menus", "Sauzen": "Sauces", "Stokbrood kruidenboter": "Baguette with herb butter", "Zalmcocktail": "Salmon cocktail", "Carpaccio ossenhaas": "Beef tenderloin carpaccio", "Garnalencocktail": "Shrimp cocktail", "Kaaskroketten": "Cheese croquettes", "2 stuks": "2 pieces", "Duo kroket van garnaal en kaas": "Duo of shrimp and cheese croquettes", "Scampi's, 5 stuks": "Scampi, 5 pieces", "Keuze uit lookroom, curry of lookboter": "Choice of garlic cream, curry or garlic butter", "Garnalenkroketten": "Shrimp croquettes", "Tapasplank voor 2": "Tapas board for 2", "Brood met smeersel, olijfjes, bitterbal, uienring, gefrituurde scampi": "Bread with spread, olives, bitterbal, onion ring, fried scampi", "Kalkoenfilet": "Turkey fillet", "Koninginnenhapje": "Chicken vol-au-vent", "Kipfilet": "Chicken fillet", "Pesto, tomaat, ui en kaas uit de oven": "Pesto, tomato, onion and oven-baked cheese", "Boerenschnitzel": "Farmer's schnitzel", "Champignons, spek en ui": "Mushrooms, bacon and onion", "Kogelbiefstuk": "Rump steak", "Spies kip met scampi's": "Chicken skewer with scampi", "Met currysaus": "With curry sauce", "Spies Napoleon": "Napoleon skewer", "Rundvlees": "Beef", "Inclusief frietjes, kroketten of gratin, exclusief saus": "Includes fries, croquettes or gratin, sauce not included", "Lekkerbekje": "Battered fish fillet", "Met tartaarsaus": "With tartare sauce", "Kabeljauwfilet": "Cod fillet", "Scampi's, 10 stuks": "Scampi, 10 pieces", "Zalmfilet": "Salmon fillet", "Met sla, tomaat, ui en ei": "With lettuce, tomato, onion and egg", "Met ei en spek": "With egg and bacon", "Met ananas": "With pineapple", "Allemaal inclusief frietjes, sla en mayo": "All include fries, lettuce and mayo", "Spaghetti bolognaise": "Spaghetti bolognese", "Lasagne bolognaise": "Lasagne bolognese", "Tagliatelle vegetarisch teriyaki": "Vegetarian tagliatelle teriyaki", "Tagliatelle vegetarisch roomsaus": "Vegetarian tagliatelle in cream sauce", "Tagliatelle scampi roomsaus": "Tagliatelle scampi in cream sauce", "Tagliatelle scampi currysaus": "Tagliatelle scampi in curry sauce", "Tagliatelle zalm roomsaus": "Tagliatelle salmon in cream sauce", "Pluto kroket": "Pluto croquette", "Dagobert Duck frikandel": "Scrooge McDuck frikandel", "Donald Duck kipschnitzel": "Donald Duck chicken schnitzel", "Kwik Kwek Kwak": "Huey, Dewey & Louie", "Videe, 1 koekje": "Videe, 1 cookie", "Lady en de Vagebond": "Lady and the Tramp", "Kroket, frikandel, kipschnitzel en videe met frietjes": "Croquette, frikandel, chicken schnitzel and videe with fries", "Peperroom": "Pepper cream", "Champignonroom": "Mushroom cream", "Witte wijn": "White wine", "Dille": "Dill", "Contact & openingsuren": "Contact & opening hours", "Tot straks op": "See you soon on", "het Kempplein.": "the Kempplein.", "Telefoon": "Phone", "Openingsuren": "Opening hours", "Maandag": "Monday", "Gesloten": "Closed", "Dinsdag": "Tuesday", "Woensdag": "Wednesday", "Donderdag": "Thursday", "Vrijdag": "Friday", "Zaterdag": "Saturday", "Zondag": "Sunday", "Lunch tot 16:00, de dinerkaart de hele dag.": "Lunch until 16:00, the dinner menu all day.", "Pagina's": "Pages", "Bezoek": "Visit", "Maandag gesloten": "Closed on Monday", "Grand Bistro Napoleon, naar home": "Grand Bistro Napoleon, go to home", "Sfeerbeeld van de bistro": "Atmosphere of the bistro", "Sfeerbeeld van het terras": "Atmosphere of the terrace", "Sfeerbeeld uit de keuken": "Atmosphere from the kitchen", "Kaart": "Menu", "Croque Speciaal": "Croque Special", "Croque Bolognaise": "Croque Bolognese"};
+  var skip=['hero-status','status','copyphone'], nodes=[], attrs=[];
+  (function(){
+    var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+      var e=n.parentNode; if(!e||e.closest('script,style,svg'))return NodeFilter.FILTER_REJECT;
+      for(var i=0;i<skip.length;i++){if(e.closest('#'+skip[i]))return NodeFilter.FILTER_REJECT;}
+      var t=n.nodeValue.trim(); return t&&Object.prototype.hasOwnProperty.call(EN,t)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});
+    var n; while((n=w.nextNode())){var v=n.nodeValue,t=v.trim();nodes.push({n:n,nl:v,en:v.replace(t,EN[t])});}
+    document.querySelectorAll('[aria-label]').forEach(function(e){var a=e.getAttribute('aria-label');if(e!==burger&&e.id!=='lang'&&Object.prototype.hasOwnProperty.call(EN,a))attrs.push({e:e,nl:a,en:EN[a]});});
+  })();
+  var metas=[].slice.call(document.querySelectorAll('meta[name=description],meta[property="og:description"]')).map(function(m){return {m:m,nl:m.content}});
+  var META_EN='Grand Bistro Napoleon on the Bernard Kempplein in Hamont-Achel. Classic Belgian cuisine, terrace, open Tuesday to Sunday from 10:00 to 20:30, closed on Monday.';
+  var langBtn=document.getElementById('lang');
+  function setLang(l,save){
+    lang=l; var en=l==='en';
+    nodes.forEach(function(o){o.n.nodeValue=en?o.en:o.nl});
+    attrs.forEach(function(o){o.e.setAttribute('aria-label',en?o.en:o.nl)});
+    metas.forEach(function(o){o.m.content=en?META_EN:o.nl});
+    document.documentElement.lang=l;
+    langBtn.textContent=UI[l].swl; langBtn.setAttribute('aria-label',UI[l].sw); langBtn.lang=en?'nl':'en';
+    burger.setAttribute('aria-label',nav.classList.contains('open')?UI[l].mc:UI[l].mo);
+    c.textContent=UI[l].copy; renderStatus(); requestAnimationFrame(placeInd);
+    if(save){try{localStorage.setItem('lang',l)}catch(e){}}
+  }
+  langBtn.addEventListener('click',function(){setLang(lang==='nl'?'en':'nl',true)});
+  try{if(localStorage.getItem('lang')==='en')setLang('en',false)}catch(e){}
 })();
 </script>
 </body>
