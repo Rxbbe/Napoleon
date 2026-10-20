@@ -4,10 +4,11 @@ GRAND BISTRO NAPOLEON - WEBSITE
 Inhoud
 ------
 index.html        De volledige website (alle pagina's, lettertypes en logo zitten erin).
-                  Er zijn geen andere bestanden nodig om de site te laten werken.
+afbeeldingen/     De foto's van de site (terras, eetzaal, avondfoto). Deze map moet
+                  samen met index.html online staan, anders ontbreken de foto's.
+                  Bevat ook het logo apart (SVG en PNG), voor drukwerk, sociale media, enz.
 404.html          Pagina die getoond wordt als een adres niet bestaat. Upload ze naast
                   index.html; de meeste hosts (en Netlify) gebruiken ze automatisch.
-afbeeldingen/     Het logo apart (SVG en PNG), voor drukwerk, sociale media, enz.
 
 Pagina's
 --------
@@ -17,7 +18,7 @@ Je kan deze links rechtstreeks delen.
 
 Hosten
 ------
-Upload "index.html" naar de hoofdmap van je webhosting (vaak "public_html" of "www").
+Upload "index.html" en de map "afbeeldingen" naar de hoofdmap van je webhosting (vaak "public_html" of "www").
 Dat werkt bij elke gewone hostingprovider (Combell, one.com, Hostinger, Strato, ...).
 
 Gratis en snel uitproberen zonder hosting:
